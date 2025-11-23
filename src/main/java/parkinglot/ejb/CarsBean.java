@@ -1,48 +1,87 @@
 package parkinglot.ejb;
 
-import parkinglot.entities.Car;
-import parkinglot.common.CarDto;
-import jakarta.ejb.EJBException;
 import jakarta.ejb.Stateless;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.TypedQuery;
-import java.util.ArrayList;
+import parkinglot.common.CarDto;
+import parkinglot.entities.Car;
+import parkinglot.entities.User;
+
 import java.util.List;
-import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 @Stateless
 public class CarsBean {
 
-    private static final Logger LOG = Logger.getLogger(CarsBean.class.getName());
-
     @PersistenceContext
     private EntityManager entityManager;
 
-    // Metodă pentru a găsi toate mașinile
     public List<CarDto> findAllCars() {
-        LOG.info("findAllCars");
-        try {
-            TypedQuery<Car> typedQuery = entityManager.createQuery("SELECT c FROM Car c", Car.class);
-            List<Car> cars = typedQuery.getResultList();
-            return copyCarsToDto(cars);
-        } catch (Exception ex) {
-            throw new EJBException(ex);
+        List<Car> cars = entityManager
+                .createQuery("SELECT c FROM Car c", Car.class)
+                .getResultList();
+
+        return cars.stream()
+                .map(car -> new CarDto(
+                        car.getId(),
+                        car.getLicensePlate(),
+                        car.getParkingSpot(),
+                        car.getOwner().getUsername()
+                ))
+                .collect(Collectors.toList());
+    }
+
+    public CarDto findById(Long carId) {
+        Car car = entityManager.find(Car.class, carId);
+        return new CarDto(
+                car.getId(),
+                car.getLicensePlate(),
+                car.getParkingSpot(),
+                car.getOwner().getUsername()
+        );
+    }
+
+    public void createCar(String licensePlate, String parkingSpot, Long userId) {
+        Car car = new Car();
+        car.setLicensePlate(licensePlate);
+        car.setParkingSpot(parkingSpot);
+
+        User user = entityManager.find(User.class, userId);
+        user.getCars().add(car);
+        car.setOwner(user);
+
+        entityManager.persist(car);
+    }
+
+    public void updateCar(Long carId, String licensePlate, String parkingSpot, Long userId) {
+        Car car = entityManager.find(Car.class, carId);
+        car.setLicensePlate(licensePlate);
+        car.setParkingSpot(parkingSpot);
+
+        User oldOwner = car.getOwner();
+        if (!oldOwner.getId().equals(userId)) {
+            oldOwner.getCars().remove(car);
+
+            User newOwner = entityManager.find(User.class, userId);
+            newOwner.getCars().add(car);
+            car.setOwner(newOwner);
         }
     }
 
-    // Metodă helper pentru a transforma Car în CarDto
-    private List<CarDto> copyCarsToDto(List<Car> cars) {
-        List<CarDto> carDtos = new ArrayList<>();
-        for (Car car : cars) {
-            CarDto carDto = new CarDto(
-                    car.getId(),
-                    car.getLicensePlate(),
-                    car.getParkingSpot(),
-                    car.getOwner().getUsername()
-            );
-            carDtos.add(carDto);
+    public void deleteCarsByIds(List<Long> carIds) {
+        for (Long carId : carIds) {
+            Car car = entityManager.find(Car.class, carId);
+            if (car != null) {
+                entityManager.remove(car);
+            }
         }
-        return carDtos;
+    }
+
+    public int countFreeParkingSpots() {
+        long totalCars = (long) entityManager
+                .createQuery("SELECT COUNT(c) FROM Car c")
+                .getSingleResult();
+
+        return 50 - (int) totalCars; // 50 = total parking spots
     }
 }

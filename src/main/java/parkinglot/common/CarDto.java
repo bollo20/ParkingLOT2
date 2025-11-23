@@ -7,7 +7,7 @@ public class CarDto {
     private String parkingSpot;
     private String ownerName;
 
-    // Constructor cu toate câmpurile
+
     public CarDto(Long id, String licensePlate, String parkingSpot, String ownerName) {
         this.id = id;
         this.licensePlate = licensePlate;
@@ -15,7 +15,7 @@ public class CarDto {
         this.ownerName = ownerName;
     }
 
-    // Doar GETTERS (nu setters!)
+
     public Long getId() {
         return id;
     }
