@@ -3,40 +3,56 @@
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 <t:pageTemplate pageTitle="Cars">
-    <a href="${pageContext.request.contextPath}/AddCar" class="btn btn-primary btn-lg mb-3">Add Car</a>
+    <h1>Cars</h1>
+
+    <!-- BUTONUL ADD CAR - doar dacă ai WRITE_CARS -->
+    <c:if test="${pageContext.request.isUserInRole('WRITE_CARS')}">
+        <a href="${pageContext.request.contextPath}/AddCar" class="btn btn-primary btn-lg">Add Car</a>
+    </c:if>
 
     <c:if test="${not empty cars}">
+        <!-- FORMULAR CARE ÎNCONJOARĂ TABELUL -->
         <form method="POST" action="${pageContext.request.contextPath}/Cars">
-            <button type="submit" class="btn btn-danger mb-3">Delete Selected Cars</button>
+            <!-- BUTON DELETE - doar dacă ai WRITE_CARS -->
+            <c:if test="${pageContext.request.isUserInRole('WRITE_CARS')}">
+                <button type="submit" class="btn btn-danger mt-3">Delete Selected</button>
+            </c:if>
 
-            <div class="table-responsive">
+            <div class="table-responsive mt-3">
                 <table class="table table-striped">
                     <thead>
                     <tr>
-                        <th scope="col">
-                            <input type="checkbox" id="selectAll" onclick="toggleSelectAll(this)">
-                        </th>
+                        <!-- COLOANA SELECT - doar dacă ai WRITE_CARS -->
+                        <c:if test="${pageContext.request.isUserInRole('WRITE_CARS')}">
+                            <th scope="col">Select</th>
+                        </c:if>
                         <th scope="col">License Plate</th>
                         <th scope="col">Parking Spot</th>
                         <th scope="col">Owner</th>
-                        <th scope="col">Actions</th>
+                        <!-- COLOANA ACTIONS - doar dacă ai WRITE_CARS -->
+                        <c:if test="${pageContext.request.isUserInRole('WRITE_CARS')}">
+                            <th scope="col">Actions</th>
+                        </c:if>
                     </tr>
                     </thead>
                     <tbody>
                     <c:forEach var="car" items="${cars}">
                         <tr>
-                            <td>
-                                <input type="checkbox" name="car_ids" value="${car.id}">
-                            </td>
+                            <!-- CHECKBOX - doar dacă ai WRITE_CARS -->
+                            <c:if test="${pageContext.request.isUserInRole('WRITE_CARS')}">
+                                <td>
+                                    <input type="checkbox" name="car_ids" value="${car.id}">
+                                </td>
+                            </c:if>
                             <td>${car.licensePlate}</td>
                             <td>${car.parkingSpot}</td>
                             <td>${car.ownerName}</td>
-                            <td>
-                                <a class="btn btn-secondary btn-sm"
-                                   href="${pageContext.request.contextPath}/EditCar?id=${car.id}">
-                                    Edit
-                                </a>
-                            </td>
+                            <!-- BUTONUL EDIT - doar dacă ai WRITE_CARS -->
+                            <c:if test="${pageContext.request.isUserInRole('WRITE_CARS')}">
+                                <td>
+                                    <a class="btn btn-secondary" href="${pageContext.request.contextPath}/EditCar?id=${car.id}">Edit Car</a>
+                                </td>
+                            </c:if>
                         </tr>
                     </c:forEach>
                     </tbody>
@@ -46,11 +62,4 @@
     </c:if>
 
     <h5>Free parking spots: ${numberOfFreeParkingSpots}</h5>
-
-    <script>
-        function toggleSelectAll(checkbox) {
-            const checkboxes = document.querySelectorAll('input[name="car_ids"]');
-            checkboxes.forEach(cb => cb.checked = checkbox.checked);
-        }
-    </script>
 </t:pageTemplate>

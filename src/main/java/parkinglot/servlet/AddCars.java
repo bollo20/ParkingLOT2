@@ -1,17 +1,23 @@
-package parkinglot.servlet;
+package parkinglot.servlets;
 
 import jakarta.inject.Inject;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.HttpConstraint;
+import jakarta.servlet.annotation.ServletSecurity;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import parkinglot.ejb.CarsBean;
+import parkinglot.common.UserDto;
 import parkinglot.ejb.UsersBean;
-import java.io.IOException;
+import parkinglot.ejb.CarsBean;
 
-@WebServlet(name = "AddCar", value = "/AddCar")
-public class AddCar extends HttpServlet {
+import java.io.IOException;
+import java.util.List;
+
+@WebServlet(name = "AddCars", value = "/AddCar")
+@ServletSecurity(value = @HttpConstraint(rolesAllowed = {"WRITE_CARS"}))
+public class AddCars extends HttpServlet {
 
     @Inject
     private UsersBean usersBean;
@@ -22,19 +28,26 @@ public class AddCar extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        request.setAttribute("users", usersBean.findAllUsers());
+        // Găsește toți utilizatorii pentru dropdown-ul Owner
+        List<UserDto> users = usersBean.findAllUsers();
+        request.setAttribute("users", users);
+
+        // Forward către pagina addCar.jsp
         request.getRequestDispatcher("/WEB-INF/pages/addCar.jsp").forward(request, response);
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        // Extrage parametrii din formular
         String licensePlate = request.getParameter("license_plate");
         String parkingSpot = request.getParameter("parking_spot");
-        Long userId = Long.parseLong(request.getParameter("owner_id"));
+        Long ownerId = Long.parseLong(request.getParameter("owner_id"));
 
-        carsBean.createCar(licensePlate, parkingSpot, userId);
+        // Creează mașina folosind CarsBean
+        carsBean.createCar(licensePlate, parkingSpot, ownerId);
 
+        // Redirect înapoi la lista de mașini
         response.sendRedirect(request.getContextPath() + "/Cars");
     }
 }
