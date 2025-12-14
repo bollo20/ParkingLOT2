@@ -8,6 +8,8 @@ import jakarta.persistence.TypedQuery;
 import parkinglot.common.CarDto;
 import parkinglot.entities.Car;
 import parkinglot.entities.User;
+import parkinglot.entities.CarPhoto;
+import parkinglot.common.CarPhotoDto;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -99,4 +101,47 @@ public class CarsBean {
             entityManager.remove(car);
         }
     }
+
+    public void addPhotoToCar(Long carId, String filename, String fileType, byte[] fileContent) {
+        LOG.info("addPhotoToCar");
+
+        CarPhoto photo = new CarPhoto();
+        photo.setFilename(filename);
+        photo.setFileType(fileType);
+        photo.setFileContent(fileContent);
+
+        Car car = entityManager.find(Car.class, carId);
+
+        // Dacă mașina are deja o poză, șterge-o
+        if (car.getPhoto() != null) {
+            entityManager.remove(car.getPhoto());
+        }
+
+        car.setPhoto(photo);
+        photo.setCar(car);
+
+        entityManager.persist(photo);
+    }
+
+    public CarPhotoDto findPhotoByCarId(Long carId) {
+        List<CarPhoto> photos = entityManager
+                .createQuery("SELECT p FROM CarPhoto p WHERE p.car.id = :id", CarPhoto.class)
+                .setParameter("id", carId)
+                .getResultList();
+
+        if (photos.isEmpty()) {
+            return null;
+        }
+
+        CarPhoto photo = photos.get(0);
+        return new CarPhotoDto(
+                photo.getId(),
+                photo.getFilename(),
+                photo.getFileType(),
+                photo.getFileContent()
+        );
+    }
+
+
+
 }

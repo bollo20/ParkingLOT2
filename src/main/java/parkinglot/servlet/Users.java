@@ -1,5 +1,6 @@
-package parkinglot.servlets;
+package parkinglot.servlet;
 
+import parkinglot.ejb.InvoiceBean;
 import parkinglot.ejb.UsersBean;
 import jakarta.annotation.security.DeclareRoles;
 import jakarta.inject.Inject;
@@ -13,6 +14,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @WebServlet(name = "Users", value = "/Users")
 @DeclareRoles({"READ_USERS", "WRITE_USERS"})
@@ -27,18 +32,44 @@ public class Users extends HttpServlet {
     @Inject
     private UsersBean usersBean;
 
+    @Inject
+    private InvoiceBean invoiceBean;
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
         request.setAttribute("users", usersBean.findAllUsers());
         request.setAttribute("activePage", "Users");
+
+        // Obține username-urile utilizatorilor facturați
+        request.setAttribute("invoices",
+                usersBean.findUsernamesByUserIds(invoiceBean.getUserIds()));
+
         request.getRequestDispatcher("/WEB-INF/pages/users.jsp").forward(request, response);
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        doGet(request, response);
+
+        // Preia ID-urile utilizatorilor selectați din formular
+        String[] userIdsAsString = request.getParameterValues("user_ids");
+
+        if (userIdsAsString != null) {
+            // Convertește String[] în Set<Long>
+            Set<Long> userIds = Arrays.stream(userIdsAsString)
+                    .map(Long::parseLong)
+                    .collect(Collectors.toSet());
+
+            // Salvează în InvoiceBean (stare păstrată în sesiune)
+            invoiceBean.setUserIds(userIds);
+        } else {
+            // Dacă nu e nimic selectat, golește lista
+            invoiceBean.setUserIds(new HashSet<>());
+        }
+
+        // Redirect la pagina Users
+        response.sendRedirect(request.getContextPath() + "/Users");
     }
 }
