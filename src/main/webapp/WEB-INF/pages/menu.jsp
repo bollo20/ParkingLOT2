@@ -10,39 +10,35 @@
       </button>
       <div class="collapse navbar-collapse" id="navbarCollapse">
         <ul class="navbar-nav me-auto mb-2 mb-md-0">
-          <li class="nav-item">
-            <a class="nav-link
-                       ${pageContext.request.requestURI.substring(pageContext.request.requestURI.lastIndexOf("/"))
-    eq '/about.jsp' ? ' active' : ''}" aria-current="page" href="${pageContext.request.contextPath}/about.jsp">About</a>
-          </li>
+
+          <!-- CARS - doar dacă ai READ_CARS -->
           <c:if test="${pageContext.request.isUserInRole('READ_CARS')}">
             <li class="nav-item">
-              <a class="nav-link
-                           ${pageContext.request.requestURI.substring(pageContext.request.requestURI.lastIndexOf("/"))
-        eq '/cars.jsp' ? ' active' : ''}" aria-current="page" href="${pageContext.request.contextPath}/Cars">Cars</a>
+              <a class="nav-link" href="${pageContext.request.contextPath}/Cars">parkinglot.servlet.car.Cars</a>
             </li>
           </c:if>
+
+          <!-- USERS - doar dacă ai READ_USERS -->
           <c:if test="${pageContext.request.isUserInRole('READ_USERS')}">
             <li class="nav-item">
-              <a class="nav-link
-                           ${pageContext.request.requestURI.substring(pageContext.request.requestURI.lastIndexOf("/"))
-        eq '/users.jsp' ? ' active' : ''}" aria-current="page" href="${pageContext.request.contextPath}/Users">Users</a>
+              <a class="nav-link" href="${pageContext.request.contextPath}/Users">Users</a>
             </li>
           </c:if>
+
         </ul>
         <ul class="navbar-nav">
-          <c:choose>
-            <c:when test="${pageContext.request.getRemoteUser() == null}">
-              <li class="nav-item">
+          <li class="nav-item">
+            <c:choose>
+              <c:when test="${pageContext.request.getRemoteUser() == null}">
                 <a class="nav-link" href="${pageContext.request.contextPath}/Login">Login</a>
-              </li>
-            </c:when>
-            <c:otherwise>
-              <li class="nav-item">
-                <a class="nav-link" href="${pageContext.request.contextPath}/Logout">Logout (${pageContext.request.getRemoteUser()})</a>
-              </li>
-            </c:otherwise>
-          </c:choose>
+              </c:when>
+              <c:otherwise>
+                <a class="nav-link" href="${pageContext.request.contextPath}/Logout">
+                  Logout (${pageContext.request.remoteUser})
+                </a>
+              </c:otherwise>
+            </c:choose>
+          </li>
         </ul>
       </div>
     </div>

@@ -1,4 +1,4 @@
-package parkinglot.servlet;
+package parkinglot.servlet.car;
 
 import jakarta.inject.Inject;
 import jakarta.servlet.ServletException;
@@ -12,6 +12,7 @@ import parkinglot.common.CarDto;
 import parkinglot.ejb.CarsBean;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 @WebServlet(name = "AddCarPhoto", value = "/AddCarPhoto")
 @MultipartConfig
@@ -27,7 +28,7 @@ public class AddCarPhoto extends HttpServlet {
         CarDto car = carsBean.findById(carId);
 
         request.setAttribute("car", car);
-        request.getRequestDispatcher("/WEB-INF/pages/addCarPhoto.jsp").forward(request, response);
+        request.getRequestDispatcher("/WEB-INF/pages/car/addCarPhoto.jsp").forward(request, response);
     }
 
     @Override
@@ -38,7 +39,12 @@ public class AddCarPhoto extends HttpServlet {
         Part filePart = request.getPart("file");
         String filename = filePart.getSubmittedFileName();
         String fileType = filePart.getContentType();
-        byte[] fileContent = filePart.getInputStream().readAllBytes();
+
+        // Citește conținutul fișierului (compatibil cu Java 8+)
+        InputStream inputStream = filePart.getInputStream();
+        byte[] fileContent = new byte[(int) filePart.getSize()];
+        inputStream.read(fileContent);
+        inputStream.close();
 
         carsBean.addPhotoToCar(carId, filename, fileType, fileContent);
 

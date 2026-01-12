@@ -1,4 +1,4 @@
-package parkinglot.servlets;
+package parkinglot.servlet;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -16,5 +16,6 @@ public class Logout extends HttpServlet {
         request.logout();
         request.getSession().invalidate();
         response.sendRedirect(request.getContextPath());
+        request.getRequestDispatcher("/WEB-INF/pages/auth/logout.jsp").forward(request, response);
     }
 }

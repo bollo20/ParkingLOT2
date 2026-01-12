@@ -84,7 +84,6 @@ public class CarsBean {
         car.setOwner(newOwner);
     }
 
-    // METODĂ NOUĂ
     public void deleteCarsByIds(List<Long> carIds) {
         LOG.info("deleteCarsByIds");
 
@@ -142,6 +141,11 @@ public class CarsBean {
         );
     }
 
+    public int countFreeParkingSpots() {
+        long totalCars = (long) entityManager
+                .createQuery("SELECT COUNT(c) FROM Car c")
+                .getSingleResult();
 
-
+        return 50 - (int) totalCars;
+    }
 }

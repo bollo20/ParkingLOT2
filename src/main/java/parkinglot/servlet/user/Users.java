@@ -1,4 +1,4 @@
-package parkinglot.servlet;
+package parkinglot.servlet.user;
 
 import parkinglot.ejb.InvoiceBean;
 import parkinglot.ejb.UsersBean;
@@ -46,7 +46,7 @@ public class Users extends HttpServlet {
         request.setAttribute("invoices",
                 usersBean.findUsernamesByUserIds(invoiceBean.getUserIds()));
 
-        request.getRequestDispatcher("/WEB-INF/pages/users.jsp").forward(request, response);
+        request.getRequestDispatcher("/WEB-INF/pages/user/users.jsp").forward(request, response);
     }
 
     @Override

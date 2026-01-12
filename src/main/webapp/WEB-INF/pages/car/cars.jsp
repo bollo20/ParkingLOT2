@@ -2,7 +2,7 @@
 <%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
-<t:pageTemplate pageTitle="Cars">
+<t:pageTemplate pageTitle="parkinglot.servlet.car.Cars">
 
     <!-- Buton Add Car - doar pentru WRITE_CARS -->
     <c:if test="${pageContext.request.isUserInRole('WRITE_CARS')}">
@@ -14,7 +14,7 @@
 
             <!-- Buton Delete - doar pentru WRITE_CARS -->
             <c:if test="${pageContext.request.isUserInRole('WRITE_CARS')}">
-                <button type="submit" class="btn btn-danger mb-3">Delete Selected Cars</button>
+                <button type="submit" class="btn btn-danger mb-3">Delete Selected parkinglot.servlet.car.Cars</button>
             </c:if>
 
             <div class="table-responsive">
