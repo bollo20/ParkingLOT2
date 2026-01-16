@@ -24,16 +24,15 @@
                        class="form-control"
                        id="license_plate"
                        name="license_plate"
-                       placeholder="e.g., PR01ABC"
+                       placeholder="e.g., PR01ABC or pr01abc"
                        required
-                       pattern="[A-Z0-9]+"
                        minlength="2"
                        maxlength="20"
-                       style="text-transform: uppercase;"
                        value="${param.license_plate}">
                 <div class="invalid-feedback">
-                    License plate is required (2-20 uppercase letters/numbers only).
+                    License plate is required (2-20 characters, letters and numbers only).
                 </div>
+            </div>
             </div>
 
             <!-- Parking Spot -->
@@ -83,5 +82,12 @@
         </div>
 
     </form>
+
+    <script>
+        // Convertește automat la uppercase când utilizatorul tastează
+        document.getElementById('license_plate').addEventListener('input', function(e) {
+            e.target.value = e.target.value.toUpperCase();
+        });
+    </script>
 
 </t:pageTemplate>
